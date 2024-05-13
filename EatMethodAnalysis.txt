@@ -1,0 +1,26 @@
+SET linesize 120
+SET pagesize 35
+
+ACCEPT v_startDate DATE FORMAT 'dd/mm/yyyy' PROMPT 'Enter the start date (dd/mm/yyyy): '
+ACCEPT v_endDate DATE FORMAT 'dd/mm/yyyy' PROMPT 'Enter the end date (dd/mm/yyyy): '
+
+TTITLE CENTER 'Eat Method Analysis' SKIP 2 -
+  'Start Date: ' &v_startDate SKIP 1 -
+  'End Date: ' &v_endDate SKIP 2
+
+COLUMN eat_method FORMAT A15 HEADING "Eat Method"
+COLUMN order_count FORMAT 99999 HEADING "Order Count"
+
+BREAK ON Eat_Method SKIP 1
+COMPUTE SUM OF Order_Count LABEL 'Total Orders: ' ON Eat_Method
+
+SELECT fo.EatMethod AS Eat_Method, COUNT(*) AS Order_Count, COALESCE(rt.Location, 'N/A') AS Table_Location
+FROM FOOD_ORDER fo
+LEFT JOIN RESTAURANT_TABLE rt ON fo.TableNo = rt.TableNo AND fo.OrderDate BETWEEN TO_DATE('&v_startDate', 'dd/mm/yyyy') AND TO_DATE('&v_endDate', 'dd/mm/yyyy')
+GROUP BY fo.EatMethod, rt.Location;
+
+
+CLEAR COLUMNS
+CLEAR BREAKS
+CLEAR COMPUTES
+TTITLE OFF

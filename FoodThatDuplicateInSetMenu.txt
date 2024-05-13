@@ -1,0 +1,25 @@
+SET LINESIZE 120
+SET PAGESIZE 35
+
+ACCEPT MenuId CHAR PROMPT 'Enter the menu ID: '
+
+COLUMN setMenuId FORMAT A11 HEADING "Set Menu ID"
+COLUMN setName FORMAT A30 HEADING "Set Menu Name"
+COLUMN TotalCount FORMAT 999 HEADING "Total Count" JUSTIFY CENTER
+
+TTITLE CENTER 'Total Count for Menu "&MenuId"' SKIP 2
+BREAK ON REPORT SKIP 1
+COMPUTE SUM LABEL 'Total' OF TotalCount ON REPORT
+
+SELECT smi.setMenuId, sm.setName, COUNT(*) AS TotalCount
+FROM SET_MENU_ITEM smi
+JOIN SET_MENU sm ON smi.setMenuId = sm.setMenuId
+JOIN MENU m ON smi.MenuId = m.MenuId
+WHERE smi.MenuId = '&MenuId'
+GROUP BY smi.setMenuId, sm.setName
+ORDER BY smi.setMenuId ASC;
+
+CLEAR COLUMNS
+CLEAR BREAKS
+CLEAR COMPUTES
+TTITLE OFF

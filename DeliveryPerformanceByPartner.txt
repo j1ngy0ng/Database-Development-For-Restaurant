@@ -1,0 +1,35 @@
+SET LINESIZE 120
+SET PAGESIZE 35
+
+ACCEPT v_startDate DATE FORMAT 'dd/mm/yyyy' PROMPT 'Enter the start date (dd/mm/yyyy): '
+ACCEPT v_endDate DATE FORMAT 'dd/mm/yyyy' PROMPT 'Enter the end date (dd/mm/yyyy): '
+
+COLUMN deliveryPartner FORMAT A20 HEADING "Delivery Partner"
+COLUMN NumberOfOrders FORMAT 99999 HEADING "Number Of Orders"
+COLUMN Revenue FORMAT 99999.99 HEADING "Revenue"
+
+TTITLE CENTER 'Delivery Performance Analysis by Partner' SKIP 2 -
+       'Start Date: ' &v_startDate SKIP 1 -
+       'End Date: ' &v_endDate SKIP 2
+
+BREAK ON REPORT SKIP 1
+COMPUTE SUM OF NumberOfOrders ON REPORT
+COMPUTE SUM OF Revenue ON REPORT
+
+SELECT 
+    d.deliveryPartner AS deliveryPartner,
+    COUNT(d.deliveryNo) AS NumberOfOrders,
+    SUM(fo.GrandTotal) AS Revenue
+FROM 
+    delivery d
+JOIN 
+    food_order fo ON d.orderNo = fo.orderNo
+WHERE 
+    fo.orderDate BETWEEN TO_DATE('&v_startDate', 'dd/mm/yyyy') AND TO_DATE('&v_endDate', 'dd/mm/yyyy')
+GROUP BY 
+    d.deliveryPartner;
+
+CLEAR COLUMNS
+CLEAR BREAKS
+CLEAR COMPUTES
+TTITLE OFF

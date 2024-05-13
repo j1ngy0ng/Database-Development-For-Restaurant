@@ -1,0 +1,37 @@
+SET linesize 120
+SET pagesize 35
+
+ACCEPT start_date CHAR PROMPT 'Enter the start date (YYYY-MM-DD) : '
+ACCEPT end_date CHAR PROMPT 'Enter the end date (YYYY-MM-DD) : '
+
+COLUMN StaffId FORMAT A10 HEADING "Staff ID"
+COLUMN StaffName FORMAT A20 HEADING "Staff Name"
+COLUMN IngName FORMAT A20 HEADING "Ingredient Name"
+COLUMN TotalUsage FORMAT 999,999 HEADING "Total Usage"
+COLUMN UnitUsed FORMAT A10 HEADING "Unit Used"
+
+TTITLE CENTER 'Total Ingredient Usage by Each Staff' SKIP 3 -
+BREAK ON StaffId ON StaffName SKIP 1
+SELECT
+	s.StaffId, s.StaffName, i.IngName, SUM(il.QtyUsed) AS TotalUsage, il.UnitUsed
+FROM
+	STAFF s
+JOIN
+	FOOD_ORDER fo ON s.StaffId = fo.StaffId
+JOIN
+	ORDER_LIST ol ON fo.OrderNo = ol.OrderNo
+JOIN
+	INGREDIENT_LIST il ON ol.MenuId = il.MenuId
+JOIN
+	INGREDIENT i ON il.IngId = i.IngId
+WHERE
+	fo.OrderDate BETWEEN TO_DATE('&start_date', 'YYYY-MM-DD') AND
+	TO_DATE('&end_date', 'YYYY-MM-DD')
+GROUP BY
+	s.StaffId, s.StaffName, i.IngName, il.UnitUsed
+ORDER BY
+	s.staffID, TotalUsage DESC;
+
+CLEAR COLUMNS
+CLEAR BREAKS
+TTITLE OFF

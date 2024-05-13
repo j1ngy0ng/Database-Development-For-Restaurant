@@ -1,0 +1,42 @@
+SET linesize 120
+SET pagesize 50
+
+ACCEPT start_date CHAR PROMPT 'Enter the start date (YYYY-MM-DD): '
+ACCEPT end_date CHAR PROMPT 'Enter the end date (YYYY-MM-DD): '
+
+COLUMN StaffId FORMAT A10 HEADING "Staff ID"
+COLUMN StaffName FORMAT A20 HEADING "Staff Name"
+COLUMN OrderNo FORMAT A10 HEADING "Order No."
+COLUMN OrderDate FORMAT A12 HEADING "Order Date"
+COLUMN TotalItems FORMAT 999 FORMAT "Total Items"
+COLUMN GrandTotal FORMAT 999,999.99 HEADING "Grand Total"
+
+TTITLE CENTER 'Sales Report by Staff' SKIP 2 -
+       LEFT 'Start Date: &start_date' SKIP 1 -
+       RIGHT 'End Date: &end_date' SKIP 2 -
+
+BREAK ON StaffId ON StaffName SKIP 1
+COMPUTE SUM OF GrandTotal ON StaffId
+COMPUTE SUM OF GrandTotal ON REPORT
+
+SELECT 
+    s.StaffId,
+    s.StaffName,
+    fo.OrderNo,
+    TO_CHAR(fo.OrderDate, 'YYYY-MM-DD') AS OrderDate,
+    fo.TotalItems,
+    fo.GrandTotal
+FROM 
+    STAFF s
+JOIN 
+    FOOD_ORDER fo ON s.StaffId = fo.StaffId
+WHERE 
+    fo.OrderDate BETWEEN TO_DATE('&start_date', 'YYYY-MM-DD') 
+    AND TO_DATE('&end_date', 'YYYY-MM-DD')
+ORDER BY 
+    s.StaffId, fo.OrderDate;
+
+CLEAR COLUMNS
+CLEAR BREAKS
+CLEAR COMPUTES
+TTITLE OFF

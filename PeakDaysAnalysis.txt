@@ -1,0 +1,23 @@
+SET linesize 120
+SET pagesize 35
+
+ACCEPT v_startDate DATE FORMAT 'dd/mm/yyyy' PROMPT 'Enter the start date (dd/mm/yyyy): '
+ACCEPT v_endDate DATE FORMAT 'dd/mm/yyyy' PROMPT 'Enter the end date (dd/mm/yyyy): '
+
+
+COLUMN day_of_week FORMAT A15 HEADING "Day of Week"
+COLUMN order_count FORMAT 99999 HEADING "Order Count"
+
+TTITLE CENTER 'Peak Days Analysis' SKIP 2
+BREAK ON Day_of_Week SKIP 1
+COMPUTE SUM LABEL 'Total Orders: ' OF Order_Count ON Order_Count 
+
+SELECT TO_CHAR(OrderDate, 'Day') AS Day_of_Week, COUNT(*) AS Order_Count
+FROM FOOD_ORDER
+WHERE OrderDate BETWEEN TO_DATE('&v_startDate', 'dd/mm/yyyy') AND TO_DATE('&v_endDate', 'dd/mm/yyyy')
+GROUP BY TO_CHAR(OrderDate, 'Day');
+
+CLEAR COLUMNS
+CLEAR BREAKS
+CLEAR COMPUTES
+TTITLE OFF

@@ -1,0 +1,43 @@
+SET linesize 120
+SET pagesize 50
+ALTER SESSION SET NLS_DATE_FORMAT = 'DD-MM-YYYY';
+
+ACCEPT v_startDate DATE FORMAT 'DD-MM-YYYY' PROMPT 'Enter the start date(DD-MM-YYYY): '
+ACCEPT v_endDate DATE FORMAT 'DD-MM-YYYY' PROMPT 'Enter the end date(DD-MM-YYYY): '
+
+COLUMN TableNo FORMAT 999 HEADING "Table No"
+COLUMN Capacity FORMAT 999 HEADING "Capacity"
+COLUMN Location FORMAT A20 HEADING "Location"
+COLUMN OrderNo FORMAT 999 HEADING "Order No"
+COLUMN OrderDate FORMAT A11 HEADING "Order Date"
+COLUMN EatMethod FORMAT A10 HEADING "Eat Method"
+COLUMN NoOfCust FORMAT 99999 HEADING "No of Customers"
+
+TTITLE LEFT 'Table Occupancy and Orders' SKIP 2 -
+	LEFT 'Start Date: &v_startDate' SKIP 1 -
+LEFT 'End Date: &v_endDate' SKIP 2 -
+
+BREAK ON REPORT SKIP 2 
+COMPUTE SUM OF NoOfCust ON REPORT
+
+SELECT
+    rt.TableNo,
+    rt.Capacity,
+    rt.Location,
+    fo.OrderNo,
+    fo.OrderDate,
+    fo.EatMethod,
+    fo.NoOfCust
+FROM
+    RESTAURANT_TABLE rt
+ JOIN
+    FOOD_ORDER fo ON rt.TableNo = fo.TableNo
+WHERE
+    fo.OrderDate BETWEEN '&v_startDate' AND '&v_endDate'
+ORDER BY
+    rt.TableNo;
+
+CLEAR COLUMNS
+CLEAR BREAKS
+CLEAR COMPUTES
+TTITLE OFF

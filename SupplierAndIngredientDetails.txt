@@ -1,0 +1,46 @@
+SET linesize 300
+SET pagesize 50
+ALTER SESSION SET NLS_DATE_FORMAT = 'DD-MM-YYYY';
+
+ACCEPT v_startDate DATE FORMAT 'DD-MM-YYYY' PROMPT 'Enter the start date(DD-MM-YYYY): '
+ACCEPT v_endDate DATE FORMAT 'DD-MM-YYYY' PROMPT 'Enter the end date(DD-MM-YYYY): '
+
+
+COLUMN SupplierId FORMAT 999 HEADING "Supplier ID"
+COLUMN SupplierName FORMAT A20 HEADING "Supplier Name"
+COLUMN SupplierPhone FORMAT A20 HEADING "Supplier Phone"
+COLUMN IngId FORMAT 999 HEADING "Ingredient ID"
+COLUMN IngName FORMAT A20 HEADING "Ingredient Name"
+COLUMN IngDesc FORMAT A30 HEADING "Ingredient Description"
+COLUMN Unit FORMAT A10 HEADING "Unit"
+COLUMN Balance FORMAT 9999 HEADING "Balance"
+COLUMN UpdtDate FORMAT A12 HEADING "Last Update Date"
+
+TTITLE LEFT 'Supplier and Ingredient Details' SKIP 2 -
+	LEFT 'Start Date: &v_startDate' SKIP 1 -
+LEFT 'End Date: &v_endDate' SKIP 2 -
+
+BREAK ON REPORT SKIP 2
+COMPUTE SUM OF Balance ON REPORT
+
+SELECT
+    s.SupplierId,
+    s.SupplierName,
+    s.SupplierPhone,
+    i.IngId,
+    i.IngName,
+    i.IngDesc,
+    i.Unit,
+    i.Balance,
+    i.UpdtDate
+FROM
+    SUPPLIER s
+JOIN
+    INGREDIENT i ON s.SupplierId = i.SupplierId
+ORDER BY
+    s.SupplierId;
+
+CLEAR COLUMNS
+CLEAR BREAKS
+CLEAR COMPUTES
+TTITLE OFF

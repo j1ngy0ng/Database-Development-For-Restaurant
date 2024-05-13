@@ -1,0 +1,27 @@
+SET linesize 120
+SET pagesize 35
+
+COLUMN SupplierId FORMAT A11 HEADING "Supplier ID"
+COLUMN SupplierName FORMAT A25 HEADING "Supplier Name"
+COLUMN IngName FORMAT A25 HEADING "Ingredient Name"
+
+TTITLE CENTER 'Number of Ingredients Supplied by Each Supplier' SKIP 3-
+
+
+BREAK ON SupplierId ON SupplierName SKIP 1
+COMPUTE COUNT OF IngName ON SupplierName
+COMPUTE COUNT OF IngName ON REPORT
+
+SELECT 
+s.SupplierId, s.SupplierName, i.IngName
+FROM 
+SUPPLIER s
+JOIN 
+INGREDIENT i ON s.SupplierId = i.SupplierId
+ORDER BY 
+s.SupplierId, s.SupplierName;
+
+CLEAR COLUMNS
+CLEAR BREAKS
+CLEAR COMPUTES
+TTITLE OFF

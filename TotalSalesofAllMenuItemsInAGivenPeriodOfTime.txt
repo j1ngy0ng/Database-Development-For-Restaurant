@@ -1,0 +1,44 @@
+SET linesize 120
+SET pagesize 50
+
+ACCEPT start_date CHAR PROMPT 'Enter the start date (YYYY-MM-DD): '
+ACCEPT end_date CHAR PROMPT 'Enter the end date (YYYY-MM-DD): '
+
+COLUMN MenuId FORMAT A10 HEADING "Menu ID"
+COLUMN MenuName FORMAT A40 HEADING "Menu Name"
+COLUMN TotalSales FORMAT 999,999.99 HEADING "Total Sales"
+COLUMN TotalQuantitySold FORMAT 999,999 HEADING "Total Qty Sold"
+
+TTITLE CENTER 'Total Sales of All Menu Items In A Given Period Of Time' SKIP 2 -
+       LEFT 'Start Date: &start_date' SKIP 1 -
+       RIGHT 'End Date: &end_date' SKIP 2 -
+
+BREAK ON REPORT SKIP 1
+COMPUTE SUM OF TotalSales ON REPORT
+COMPUTE SUM OF TotalQuantitySold ON REPORT
+
+SELECT 
+    ol.MenuId, 
+    m.MenuName, 
+    SUM(ol.Price) AS TotalSales, 
+    SUM(ol.ItemQty) AS TotalQuantitySold
+FROM 
+    ORDER_LIST ol
+JOIN 
+    FOOD_ORDER fo ON ol.OrderNo = fo.OrderNo
+JOIN 
+    MENU m ON ol.MenuId = m.MenuId
+WHERE 
+    fo.OrderDate BETWEEN TO_DATE('&start_date', 'YYYY-MM-DD')
+    AND 
+    TO_DATE('&end_date', 'YYYY-MM-DD')
+GROUP BY 
+    ol.MenuId, 
+    m.MenuName
+ORDER BY
+    TotalQuantitySold DESC;
+
+CLEAR COLUMNS
+CLEAR BREAKS
+CLEAR COMPUTES
+TTITLE OFF

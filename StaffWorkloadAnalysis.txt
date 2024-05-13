@@ -1,0 +1,40 @@
+SET linesize 120
+SET pagesize 35
+ALTER SESSION SET NLS_DATE_FORMAT = 'DD-MM-YYYY';
+
+ACCEPT v_startDate DATE FORMAT 'DD-MM-YYYY' PROMPT 'Enter the start date(DD-MM-YYYY): '
+ACCEPT v_endDate DATE FORMAT 'DD-MM-YYYY' PROMPT 'Enter the end date(DD-MM-YYYY): '
+
+COLUMN StaffId FORMAT 999 HEADING "Staff ID"
+COLUMN StaffName FORMAT A20 HEADING "Staff Name"
+COLUMN NumOrders FORMAT 999999 HEADING "Number of Orders"
+COLUMN TotalWorkload FORMAT 999999 HEADING "Total Workload"
+
+TTITLE LEFT 'Staff Workload Analysis' SKIP 2 -
+LEFT 'Start Date: &v_startDate' SKIP 1 -
+LEFT 'End Date: &v_endDate' SKIP 2 -
+
+BREAK ON REPORT SKIP 2
+COMPUTE SUM OF NumOrders ON REPORT
+COMPUTE SUM OF TotalWorkload ON REPORT
+SELECT 
+fo.StaffId,
+s.StaffName,
+COUNT(fo.OrderNo) AS NumOrders,
+SUM(fo.TotalItems) AS TotalWorkload
+FROM
+	FOOD_ORDER fo
+JOIN
+	STAFF s ON fo.StaffId = s.StaffId
+WHERE
+	fo.OrderDate BETWEEN '&v_startDate' AND '&v_endDate'
+GROUP BY
+	fo.StaffId, 
+s.StaffName
+ORDER BY
+	TotalWorkload DESC;
+
+CLEAR COLUMNS
+CLEAR BREAKS
+CLEAR COMPUTES
+TTITLE OFF

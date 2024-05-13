@@ -1,0 +1,23 @@
+SET LINESIZE 120
+SET PAGESIZE 35
+
+ACCEPT MenuId CHAR PROMPT 'Enter the menu ID: '
+
+COLUMN PromoId FORMAT A10 HEADING "Promo ID"
+COLUMN PromoName FORMAT A30 HEADING "Promo Name"
+COLUMN TotalCount FORMAT 999 HEADING "Total Count"
+
+TTITLE CENTER 'Total Count for Menu "&MenuId"' SKIP 2-
+
+SELECT p.PromoId, ps.PromoName, COUNT(*) AS TotalCount
+FROM PROMOTIONAL_SET_ITEM p
+JOIN PROMOTIONAL_SET ps ON p.PromoId = ps.PromoId
+JOIN MENU m ON p.MenuId = m.MenuId
+WHERE p.MenuId = '&MenuId'
+GROUP BY p.PromoId, ps.PromoName
+ORDER BY p.PromoId ASC;
+
+CLEAR COLUMNS
+CLEAR BREAKS
+CLEAR COMPUTES
+TTITLE OFF

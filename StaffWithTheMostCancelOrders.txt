@@ -1,0 +1,40 @@
+SET PAGESIZE 35
+SET LINESIZE 100
+
+ACCEPT start_date CHAR PROMPT 'Enter the start date (YYYY-MM-DD): '
+ACCEPT end_date CHAR PROMPT 'Enter the end date (YYYY-MM-DD): '
+
+COLUMN StaffId FORMAT A10 HEADING "Staff Id"
+COLUMN StaffName FORMAT A20 HEADING "Staff Name"
+COLUMN CancelOrdersCount FORMAT 99999 HEADING "Cancel Orders Count"
+
+TTITLE CENTER 'Staff Members with the Most Cancel Orders' SKIP 2 -
+       LEFT 'Start Date: &start_date' SKIP 1-
+       RIGHT 'End Date: &end_date' SKIP 2-
+
+BREAK ON REPORT SKIP 1
+COMPUTE SUM OF CancelOrdersCount ON REPORT
+
+SELECT 
+	s.StaffId, 
+	s.StaffName, 
+	COUNT(c.CancelId) AS CancelOrdersCount
+FROM 
+	STAFF s
+JOIN 
+	FOOD_ORDER fo ON s.StaffId = fo.StaffId
+JOIN 
+	CANCELLATION c ON fo.OrderNo = c.OrderNo
+WHERE 
+	fo.OrderDate BETWEEN TO_DATE('&start_date', 'YYYY-MM-DD') 
+	AND TO_DATE('&end_date', 'YYYY-MM-DD')
+GROUP BY 
+	s.StaffId, 
+	s.StaffName
+ORDER BY 
+	CancelOrdersCount DESC;
+
+CLEAR COLUMNS
+CLEAR BREAKS
+CLEAR COMPUTES
+TTITLE OFF
